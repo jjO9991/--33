@@ -170,7 +170,7 @@ final class DraftFlowViewModel: ObservableObject {
         messages.append(ChatMessage(
             id: UUID().uuidString,
             role: "assistant",
-            content: "你好！我是「契合」，专注帮你搞定房屋租赁合同。😊\n\n**您可以根据上方的可展开信息面板填写所有信息，也可以由我一步步询问。请问您想怎么开始？**",
+            content: "你好！我是「契合」，专注帮你搞定房屋租赁合同。😊\n\n您可以根据上方的可展开信息面板填写所有信息，也可以由我一步步询问。请问您想怎么开始？",
             createdAt: Date()
         ))
     }
@@ -186,6 +186,8 @@ final class DraftFlowViewModel: ObservableObject {
         if let jsonRange = text.range(of: "\n{\"field_state\":") {
             text = String(text[..<jsonRange.lowerBound])
         }
+        // 去掉 AI 返回内容中的 ** 粗体标记
+        text = text.replacingOccurrences(of: "**", with: "")
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 

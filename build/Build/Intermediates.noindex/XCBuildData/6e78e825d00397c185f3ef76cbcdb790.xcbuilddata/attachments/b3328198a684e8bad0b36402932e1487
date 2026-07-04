@@ -1,0 +1,79 @@
+{
+  "" : {
+    "diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QH-primary.dia",
+    "emit-module-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QH-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QH-primary-emit-module.dia",
+    "pch" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QH-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QH-primary.swiftdeps"
+  },
+  "/Users/jojo/Desktop/--33-main/ios/QH/QH/ContentView.swift" : {
+    "const-values" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/jojo/Desktop/--33-main/ios/QH/QH/Models/Models.swift" : {
+    "const-values" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/Models.swiftconstvalues",
+    "dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/Models.d",
+    "diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/Models.dia",
+    "index-unit-output-path" : "/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/Models.o",
+    "llvm-bc" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/Models.bc",
+    "object" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/Models.o",
+    "swift-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/Models.swiftdeps",
+    "swiftmodule" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/Models~partial.swiftmodule"
+  },
+  "/Users/jojo/Desktop/--33-main/ios/QH/QH/QHApp.swift" : {
+    "const-values" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QHApp.swiftconstvalues",
+    "dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QHApp.d",
+    "diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QHApp.dia",
+    "index-unit-output-path" : "/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QHApp.o",
+    "llvm-bc" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QHApp.bc",
+    "object" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QHApp.o",
+    "swift-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QHApp.swiftdeps",
+    "swiftmodule" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/QHApp~partial.swiftmodule"
+  },
+  "/Users/jojo/Desktop/--33-main/ios/QH/QH/Services/APIClient.swift" : {
+    "const-values" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/APIClient.swiftconstvalues",
+    "dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/APIClient.d",
+    "diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/APIClient.dia",
+    "index-unit-output-path" : "/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/APIClient.o",
+    "llvm-bc" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/APIClient.bc",
+    "object" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/APIClient.o",
+    "swift-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/APIClient.swiftdeps",
+    "swiftmodule" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/APIClient~partial.swiftmodule"
+  },
+  "/Users/jojo/Desktop/--33-main/ios/QH/QH/Views/ChatComponents.swift" : {
+    "const-values" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ChatComponents.swiftconstvalues",
+    "dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ChatComponents.d",
+    "diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ChatComponents.dia",
+    "index-unit-output-path" : "/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ChatComponents.o",
+    "llvm-bc" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ChatComponents.bc",
+    "object" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ChatComponents.o",
+    "swift-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ChatComponents.swiftdeps",
+    "swiftmodule" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/ChatComponents~partial.swiftmodule"
+  },
+  "/Users/jojo/Desktop/--33-main/ios/QH/QH/Views/DraftFlowView.swift" : {
+    "const-values" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowView.swiftconstvalues",
+    "dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowView.d",
+    "diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowView.dia",
+    "index-unit-output-path" : "/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowView.o",
+    "llvm-bc" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowView.bc",
+    "object" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowView.o",
+    "swift-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowView.swiftdeps",
+    "swiftmodule" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowView~partial.swiftmodule"
+  },
+  "/Users/jojo/Desktop/--33-main/ios/QH/QH/Views/DraftFlowViewModel.swift" : {
+    "const-values" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowViewModel.swiftconstvalues",
+    "dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowViewModel.d",
+    "diagnostics" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowViewModel.dia",
+    "index-unit-output-path" : "/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowViewModel.o",
+    "llvm-bc" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowViewModel.bc",
+    "object" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowViewModel.o",
+    "swift-dependencies" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowViewModel.swiftdeps",
+    "swiftmodule" : "/Users/jojo/Desktop/--33-main/build/Build/Intermediates.noindex/QH.build/Debug-iphonesimulator/QH.build/Objects-normal/arm64/DraftFlowViewModel~partial.swiftmodule"
+  }
+}
