@@ -29,73 +29,118 @@ struct ContentView: View {
 }
 
 struct HomeView: View {
+    @State private var showExpandedChat = false
+    @State private var chatInitialMessage = ""
+    @Namespace private var chatNS
+    @State private var navigateToDraft = false
+    @State private var navigateToReview = false
+
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .top) {
-                Color(red: 0.965, green: 0.976, blue: 0.984)
-                    .ignoresSafeArea()
+        ZStack {
+            NavigationView {
+                ZStack(alignment: .top) {
+                    Color(red: 0.965, green: 0.976, blue: 0.984)
+                        .ignoresSafeArea()
 
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.07, green: 0.17, blue: 0.31),
-                        Color(red: 0.10, green: 0.25, blue: 0.44)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .frame(height: 310)
-                .ignoresSafeArea(edges: .top)
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.07, green: 0.17, blue: 0.31),
+                            Color(red: 0.10, green: 0.25, blue: 0.44)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .frame(height: 310)
+                    .ignoresSafeArea(edges: .top)
 
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 128))
-                    .foregroundColor(.white.opacity(0.08))
-                    .offset(x: 120, y: 82)
+                    Image(systemName: "checkmark.shield.fill")
+                        .font(.system(size: 128))
+                        .foregroundColor(.white.opacity(0.08))
+                        .offset(x: 120, y: 82)
 
-                VStack(spacing: 22) {
-                    VStack(spacing: 8) {
-                        QiHeLogoMark()
-                            .frame(width: 78, height: 78)
+                    VStack(spacing: 22) {
+                        VStack(spacing: 8) {
+                            QiHeLogoMark()
+                                .frame(width: 78, height: 78)
 
-                        Text("契 合")
-                            .font(.system(size: 44, weight: .bold))
-                            .foregroundColor(.white)
+                            Text("契 合")
+                                .font(.system(size: 44, weight: .bold))
+                                .foregroundColor(.white)
 
-                        HStack(spacing: 12) {
-                            Rectangle().frame(width: 24, height: 1)
-                            Text("AI 合同助手 · 懂法律，更懂你")
-                                .font(.system(size: 16, weight: .medium))
-                            Rectangle().frame(width: 24, height: 1)
+                            HStack(spacing: 12) {
+                                Rectangle().frame(width: 24, height: 1)
+                                Text("AI 合同助手 · 懂法律，更懂你")
+                                    .font(.system(size: 16, weight: .medium))
+                                Rectangle().frame(width: 24, height: 1)
+                            }
+                            .foregroundColor(Color(red: 0.76, green: 0.93, blue: 0.96))
                         }
-                        .foregroundColor(Color(red: 0.76, green: 0.93, blue: 0.96))
-                    }
-                    .padding(.top, 28)
+                        .padding(.top, 28)
 
-                    HomeChatCard()
+                        HomeInputBar(onSend: { msg in
+                            chatInitialMessage = msg
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
+                                showExpandedChat = true
+                            }
+                        })
+                        .matchedGeometryEffect(id: "chatCard", in: chatNS)
                         .padding(.horizontal, 20)
 
-                    HStack(spacing: 12) {
-                        HomeActionCard(
-                            title: "合同生成",
-                            subtitle: "根据您的需求\n定制专属合同",
-                            kind: .draft,
-                            tint: Color(red: 0.26, green: 0.76, blue: 0.62),
-                            destination: DraftFlowView()
-                        )
+                        HStack(spacing: 12) {
+                            HomeActionCard(
+                                title: "合同生成",
+                                subtitle: "根据您的需求\n定制专属合同",
+                                kind: .draft,
+                                tint: Color(red: 0.26, green: 0.76, blue: 0.62),
+                                destination: DraftFlowView()
+                            )
 
-                        HomeActionCard(
-                            title: "合同审查",
-                            subtitle: "AI 智能审查合同风险\n提供修改建议",
-                            kind: .review,
-                            tint: Color(red: 0.22, green: 0.50, blue: 0.96),
-                            destination: ReviewFlowView()
-                        )
+                            HomeActionCard(
+                                title: "合同审查",
+                                subtitle: "AI 智能审查合同风险\n提供修改建议",
+                                kind: .review,
+                                tint: Color(red: 0.22, green: 0.50, blue: 0.96),
+                                destination: ReviewFlowView()
+                            )
+                        }
+
+                        Spacer(minLength: 20)
                     }
+                    .padding(.horizontal, 20)
 
-                    Spacer(minLength: 20)
+                    // 隐藏导航链接 — 聊天页气泡用
+                    NavigationLink(destination: DraftFlowView(), isActive: $navigateToDraft) { EmptyView() }
+                    NavigationLink(destination: ReviewFlowView(), isActive: $navigateToReview) { EmptyView() }
                 }
-                .padding(.horizontal, 20)
+                .navigationBarHidden(true)
             }
-            .navigationBarHidden(true)
+
+            // 展开的全屏聊天
+            if showExpandedChat {
+                HomeChatView(
+                    initialMessage: chatInitialMessage,
+                    onDismiss: {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
+                            showExpandedChat = false
+                        }
+                    },
+                    onNavigateToDraft: {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
+                            showExpandedChat = false
+                        }
+                        navigateToDraft = true
+                    },
+                    onNavigateToReview: {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
+                            showExpandedChat = false
+                        }
+                        navigateToReview = true
+                    }
+                )
+                .matchedGeometryEffect(id: "chatCard", in: chatNS)
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                .zIndex(999)
+            }
         }
     }
 }
@@ -942,7 +987,7 @@ struct RiskCardView: View {
 
 struct HomeInputBar: View {
     @State private var inputText: String = ""
-    @State private var navigateToChat = false
+    var onSend: (String) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -950,12 +995,10 @@ struct HomeInputBar: View {
                 TextField("描述你的合同需求或法律问题…", text: $inputText)
                     .font(.system(size: 14))
                     .submitLabel(.send)
-                    .onSubmit { if !inputText.trimmingCharacters(in: .whitespaces).isEmpty { navigateToChat = true } }
+                    .onSubmit { sendIfValid() }
 
                 Button {
-                    if !inputText.trimmingCharacters(in: .whitespaces).isEmpty {
-                        navigateToChat = true
-                    }
+                    sendIfValid()
                 } label: {
                     Image(systemName: "arrow.up")
                         .font(.system(size: 13, weight: .bold))
@@ -984,13 +1027,13 @@ struct HomeInputBar: View {
             }
             .padding(.top, 10)
             .padding(.leading, 4)
-
-            // 隐藏的 NavigationLink
-            NavigationLink(
-                destination: HomeChatView(initialMessage: inputText.trimmingCharacters(in: .whitespaces)),
-                isActive: $navigateToChat
-            ) { EmptyView() }
         }
+    }
+
+    private func sendIfValid() {
+        let msg = inputText.trimmingCharacters(in: .whitespaces)
+        guard !msg.isEmpty else { return }
+        onSend(msg)
     }
 }
 
