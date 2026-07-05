@@ -186,7 +186,7 @@ def review_contract(contract_text: str, user_role: str) -> dict:
 
     try:
         resp = client.chat.completions.create(
-            model=get_settings().deepseek_review_model,
+            model="deepseek-chat",
             messages=[
                 {"role": "system", "content": sys_msg},
                 {"role": "user", "content": user_msg},
