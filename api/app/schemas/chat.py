@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 class ChatRequest(BaseModel):
     """发送消息请求体。"""
 
-    message: str = Field(..., min_length=1, max_length=2000, description="用户输入的消息")
+    message: str = Field(..., min_length=1, max_length=50000, description="用户输入的消息")
 
 
 class FieldInfo(BaseModel):

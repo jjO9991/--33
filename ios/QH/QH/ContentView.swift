@@ -29,118 +29,85 @@ struct ContentView: View {
 }
 
 struct HomeView: View {
-    @State private var showExpandedChat = false
-    @State private var chatInitialMessage = ""
-    @Namespace private var chatNS
-    @State private var navigateToDraft = false
-    @State private var navigateToReview = false
+    @State private var showChat = false
+    @State private var chatInputText = ""
 
     var body: some View {
-        ZStack {
-            NavigationView {
-                ZStack(alignment: .top) {
-                    Color(red: 0.965, green: 0.976, blue: 0.984)
-                        .ignoresSafeArea()
+        NavigationView {
+            ZStack(alignment: .top) {
+                Color(red: 0.965, green: 0.976, blue: 0.984)
+                    .ignoresSafeArea()
 
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.07, green: 0.17, blue: 0.31),
-                            Color(red: 0.10, green: 0.25, blue: 0.44)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .frame(height: 310)
-                    .ignoresSafeArea(edges: .top)
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.07, green: 0.17, blue: 0.31),
+                        Color(red: 0.10, green: 0.25, blue: 0.44)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .frame(height: 310)
+                .ignoresSafeArea(edges: .top)
 
-                    Image(systemName: "checkmark.shield.fill")
-                        .font(.system(size: 128))
-                        .foregroundColor(.white.opacity(0.08))
-                        .offset(x: 120, y: 82)
+                Image(systemName: "checkmark.shield.fill")
+                    .font(.system(size: 128))
+                    .foregroundColor(.white.opacity(0.08))
+                    .offset(x: 120, y: 82)
 
-                    VStack(spacing: 22) {
-                        VStack(spacing: 8) {
-                            QiHeLogoMark()
-                                .frame(width: 78, height: 78)
+                VStack(spacing: 22) {
+                    VStack(spacing: 8) {
+                        QiHeLogoMark()
+                            .frame(width: 78, height: 78)
 
-                            Text("契 合")
-                                .font(.system(size: 44, weight: .bold))
-                                .foregroundColor(.white)
-
-                            HStack(spacing: 12) {
-                                Rectangle().frame(width: 24, height: 1)
-                                Text("AI 合同助手 · 懂法律，更懂你")
-                                    .font(.system(size: 16, weight: .medium))
-                                Rectangle().frame(width: 24, height: 1)
-                            }
-                            .foregroundColor(Color(red: 0.76, green: 0.93, blue: 0.96))
-                        }
-                        .padding(.top, 28)
-
-                        HomeInputBar(onSend: { msg in
-                            chatInitialMessage = msg
-                            withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
-                                showExpandedChat = true
-                            }
-                        })
-                        .matchedGeometryEffect(id: "chatCard", in: chatNS)
-                        .padding(.horizontal, 20)
+                        Text("契 合")
+                            .font(.system(size: 44, weight: .bold))
+                            .foregroundColor(.white)
 
                         HStack(spacing: 12) {
-                            HomeActionCard(
-                                title: "合同生成",
-                                subtitle: "根据您的需求\n定制专属合同",
-                                kind: .draft,
-                                tint: Color(red: 0.26, green: 0.76, blue: 0.62),
-                                destination: DraftFlowView()
-                            )
-
-                            HomeActionCard(
-                                title: "合同审查",
-                                subtitle: "AI 智能审查合同风险\n提供修改建议",
-                                kind: .review,
-                                tint: Color(red: 0.22, green: 0.50, blue: 0.96),
-                                destination: ReviewFlowView()
-                            )
+                            Rectangle().frame(width: 24, height: 1)
+                            Text("AI 合同助手 · 懂法律，更懂你")
+                                .font(.system(size: 16, weight: .medium))
+                            Rectangle().frame(width: 24, height: 1)
                         }
-
-                        Spacer(minLength: 20)
+                        .foregroundColor(Color(red: 0.76, green: 0.93, blue: 0.96))
                     }
+                    .padding(.top, 28)
+
+                    HomeInputBar(
+                        inputText: $chatInputText,
+                        onSend: { withAnimation { showChat = true } }
+                    )
                     .padding(.horizontal, 20)
 
-                    // 隐藏导航链接 — 聊天页气泡用
-                    NavigationLink(destination: DraftFlowView(), isActive: $navigateToDraft) { EmptyView() }
-                    NavigationLink(destination: ReviewFlowView(), isActive: $navigateToReview) { EmptyView() }
-                }
-                .navigationBarHidden(true)
-            }
+                    HStack(spacing: 12) {
+                        HomeActionCard(
+                            title: "合同生成",
+                            subtitle: "根据您的需求\n定制专属合同",
+                            kind: .draft,
+                            tint: Color(red: 0.26, green: 0.76, blue: 0.62),
+                            destination: DraftFlowView()
+                        )
 
-            // 展开的全屏聊天
-            if showExpandedChat {
-                HomeChatView(
-                    initialMessage: chatInitialMessage,
-                    onDismiss: {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
-                            showExpandedChat = false
-                        }
-                    },
-                    onNavigateToDraft: {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
-                            showExpandedChat = false
-                        }
-                        navigateToDraft = true
-                    },
-                    onNavigateToReview: {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
-                            showExpandedChat = false
-                        }
-                        navigateToReview = true
+                        HomeActionCard(
+                            title: "合同审查",
+                            subtitle: "AI 智能审查合同风险\n提供修改建议",
+                            kind: .review,
+                            tint: Color(red: 0.22, green: 0.50, blue: 0.96),
+                            destination: ReviewFlowView()
+                        )
                     }
-                )
-                .matchedGeometryEffect(id: "chatCard", in: chatNS)
-                .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                .zIndex(999)
+
+                    Spacer(minLength: 20)
+                }
+                .padding(.horizontal, 20)
+
+                // 聊天用 NavigationLink push（保留在栈底）
+                NavigationLink(
+                    destination: HomeChatView(initialMessage: chatInputText),
+                    isActive: $showChat
+                ) { EmptyView() }
             }
+            .navigationBarHidden(true)
         }
     }
 }
@@ -753,8 +720,8 @@ struct ReviewFlowView: View {
                         .background(Color(red: 0.941, green: 0.953, blue: 0.969))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                    if vm.contractText.count > 4500 {
-                        Text("合同文本较长（\(vm.contractText.count)字），审查可能需要更长时间")
+                    if vm.contractText.count > 3500 {
+                        Text("合同文本较长（\(vm.contractText.count)字），超过 4000 字将自动截断")
                             .font(.caption)
                             .foregroundColor(.orange)
                             .padding(.top, 4)
@@ -986,8 +953,8 @@ struct RiskCardView: View {
 // MARK: - 首页聊天卡片
 
 struct HomeInputBar: View {
-    @State private var inputText: String = ""
-    var onSend: (String) -> Void
+    @Binding var inputText: String
+    var onSend: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -1031,9 +998,8 @@ struct HomeInputBar: View {
     }
 
     private func sendIfValid() {
-        let msg = inputText.trimmingCharacters(in: .whitespaces)
-        guard !msg.isEmpty else { return }
-        onSend(msg)
+        guard !inputText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        onSend()
     }
 }
 

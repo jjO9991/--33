@@ -24,7 +24,7 @@ actor APIClient {
 
     private init() {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 30
+        config.timeoutIntervalForRequest = 120
         self.session = URLSession(configuration: config)
     }
 
@@ -126,6 +126,7 @@ actor APIClient {
         guard let url = URL(string: baseURL + path) else { throw APIError.badURL }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
+        req.timeoutInterval = 120
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(body)
         let (data, resp) = try await session.data(for: req)

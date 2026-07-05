@@ -93,6 +93,20 @@ def _parse_ai_reply(raw: str) -> tuple[ReviewSummary, list[RiskCard]]:
         text = "\n".join(lines).strip()
 
     data = json.loads(text)
+
+    # 兜底标准化 citations：DeepSeek 偶尔不按格式输出，补全必填字段避免解析失败
+    for risk in data.get("risks", []):
+        normalized = []
+        for c in risk.get("citations", []):
+            if isinstance(c, str):
+                c = {"title": c}
+            c.setdefault("source_type", "law")
+            c.setdefault("title", "相关法规")
+            c.setdefault("url_or_ref", "")
+            c.setdefault("verified", False)
+            normalized.append(c)
+        risk["citations"] = normalized
+
     summary = ReviewSummary(**data["summary"])
     risks = [RiskCard(**item) for item in data.get("risks", [])]
     return summary, risks

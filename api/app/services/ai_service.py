@@ -16,13 +16,10 @@ from app.config import get_settings
 
 logger = logging.getLogger("qh.ai")
 
-HOME_CHAT_SYSTEM_PROMPT = """你是「契合」，一个专业的房屋租赁合同 AI 助手。
-
-你的角色：
-- 友好、专业地回答用户关于租房、合同、法律常识的问题
-- 当用户表达"想租房""需要合同""签约""审核"等意图时，温和引导：「你可以点击下方的「合同生成」快速拟定一份租房合同，或者点击「合同审查」帮你检查已有合同的风险」
-- 不要主动帮用户收集合同字段（那是「合同生成」功能的工作）
-- 回答简洁，控制在 200 字以内，像真人聊天一样自然
+HOME_CHAT_SYSTEM_PROMPT = """你是「契合」，房屋租赁合同 AI 助手。
+- 友好专业回答租房/合同/法律问题，200字内
+- 用户说生成/起草合同 → 引导：「请点击聊天顶部绿色「合同生成」按钮，帮您快速拟定」
+- 用户说审查合同/帮我看看 → 引导：「请点击聊天顶部蓝色「合同审查」按钮，上传合同帮您分析风险」
 - 始终使用中文回复"""
 
 SYSTEM_PROMPT = """你是「契合」，一个专业的房屋租赁合同 AI 助手。
@@ -91,6 +88,7 @@ def _build_openai_client() -> OpenAI:
     return OpenAI(
         api_key=settings.deepseek_api_key,
         base_url="https://api.deepseek.com",
+        timeout=120.0,
     )
 
 
@@ -114,7 +112,7 @@ REVIEW_SYSTEM_PROMPT = """你是「契合」的合同审查引擎，专门分析
 行为准则：
 1. 只输出有实质风险的条款，无风险的合同可以返回空风险列表
 2. 每条风险必须包含：risk_id, level(red/yellow/green), type, title, quote（原文引用）, plain_explanation（白话解释），suggested_revision（建议改法），needs_lawyer(boolean)
-3. 法律引用 citations 为可选字段，没有确切法条依据时不编造，留空数组
+3. 法律引用 citations 为可选字段，没有确切法条依据时不编造，留空数组。**如果填写 citations，每个元素必须严格包含4个字段**：source_type（只能是 "law" / "regulation" / "interpretation" / "standard_contract" 之一）、title（法条全称+条款号，如「《民法典》第七百一十二条」）、url_or_ref（出处，无则空字符串）、verified（固定 false）。**禁止**只写字符串数组如 ["民法典712条"]，必须写完整对象。
 4. highlight_range 用原文字符偏移（start/end），无法定位时设为 {"start":0,"end":0}
 5. 审查摘要 summary 必须包含 total_risks, red_count, yellow_count, green_count, suggestion
 
@@ -136,12 +134,18 @@ REVIEW_SYSTEM_PROMPT = """你是「契合」的合同审查引擎，专门分析
       "quote": "合同原文中的风险句子",
       "plain_explanation": "这句话对你不利，因为…",
       "suggested_revision": "建议改为：租赁期满且房屋无异常损坏时，出租方应在3个工作日内无息退还押金。",
-      "citations": [],
+      "citations": [{"source_type": "law", "title": "《民法典》第七百一十二条", "url_or_ref": "", "verified": false}],
       "highlight_range": {"start": 120, "end": 168},
       "needs_lawyer": false
     }
   ]
 }
+
+**格式强约束（违反会导致解析失败）**：
+- citations 必须是对象数组，禁止字符串数组如 ["《民法典》712条"]
+- 每个 citation 必须含 source_type / title / url_or_ref / verified 这 4 个字段
+- source_type 只能是 "law" / "regulation" / "interpretation" / "standard_contract" 之一
+- 无依据时 citations 填空数组 []
 
 注意：如果合同文本中根本没有租赁相关内容（比如用户传了一张猫的照片），返回：
 {"summary":{"total_risks":0,"red_count":0,"yellow_count":0,"green_count":0,"suggestion":"未检测到有效的租赁合同内容，请确认上传文件是否正确。"},"risks":[]}"""
@@ -170,9 +174,13 @@ def review_contract(contract_text: str, user_role: str) -> dict:
         f"{' 请特别关注对出租方不利的条款。' if user_role == 'landlord' else ''}"
         f"{' 请从双方平衡角度给出中立评估。' if user_role == 'neutral' else ''}"
     )
-    # 合同过长时截断，避免 max_tokens 装不下导致输出被截断
-    if len(contract_text) > 5000:
-        contract_text = contract_text[:5000] + "\n\n[合同文本过长，已截断，仅审查前5000字]"
+    # 合同过长时截断，避免上下文撑爆导致 DeepSeek 返回残缺 JSON
+    # 阈值 4000：给 system prompt + 输出 JSON 留足余量
+    if len(contract_text) > 4000:
+        contract_text = (
+            contract_text[:4000]
+            + "\n\n[合同文本过长，已截断，仅审查前4000字。建议对完整合同分批审查。]"
+        )
 
     user_msg = f"审查立场：{user_role}\n\n合同文本：\n{contract_text}"
 
@@ -282,6 +290,8 @@ def chat_home(
 ) -> tuple[str, list[dict]]:
     """
     首页聊天的 DeepSeek 调用（不带字段收集 prompt）。
+    用户可能粘贴整份合同文本 → 进入"合同审查模式"，
+    因此 max_tokens 放宽到 2048。
 
     Args:
         messages: 历史消息 [{role, content}, ...]
@@ -290,4 +300,8 @@ def chat_home(
     Returns:
         (ai_reply, updated_messages)
     """
-    return _chat_common(messages, user_message, system_prompt=HOME_CHAT_SYSTEM_PROMPT)
+    return _chat_common(
+        messages, user_message,
+        system_prompt=HOME_CHAT_SYSTEM_PROMPT,
+        max_tokens=2048,
+    )

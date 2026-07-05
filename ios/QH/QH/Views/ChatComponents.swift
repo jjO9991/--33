@@ -10,18 +10,25 @@ struct ChatBubble: View {
             if message.isUser { Spacer(minLength: 40) }
 
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: 4) {
-                Text(message.content)
-                    .font(.system(size: 16))
-                    .lineSpacing(3)
-                    .padding(12)
-                    .background(
-                        message.isUser
-                        ? DraftStyle.primary
-                        : Color.white
-                    )
-                    .foregroundColor(message.isUser ? .white : .primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .shadow(color: .black.opacity(message.isUser ? 0.04 : 0.06), radius: 8, x: 0, y: 4)
+                if message.isUser {
+                    Text(message.content)
+                        .font(.system(size: 16))
+                        .lineSpacing(3)
+                        .padding(12)
+                        .background(DraftStyle.primary)
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 4)
+                } else {
+                    Text((try? AttributedString(markdown: message.content)) ?? AttributedString(message.content))
+                        .font(.system(size: 16))
+                        .lineSpacing(3)
+                        .padding(12)
+                        .background(Color.white)
+                        .foregroundColor(.primary)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
+                }
 
                 Text(message.createdAt, style: .time)
                     .font(.caption2)
