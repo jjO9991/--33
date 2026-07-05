@@ -114,6 +114,35 @@ final class ReviewFlowViewModel: ObservableObject {
         }
     }
 
+    convenience init(restoreSessionId: String) {
+        self.init()
+        Task { await restoreReview(restoreSessionId) }
+    }
+
+    private func restoreReview(_ sessionId: String) async {
+        currentStep = .analyzing
+        do {
+            let detail = try await api.getReviewDetail(sessionId: sessionId)
+            await MainActor.run {
+                if let summary = detail.summary {
+                    self.summary = summary
+                    self.risks = detail.risks
+                    self.currentStep = .result
+                } else {
+                    self.errorMessage = "该审查记录无结果"
+                    self.showError = true
+                    self.currentStep = .input
+                }
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showError = true
+                currentStep = .input
+            }
+        }
+    }
+
     func reset() {
         contractText = ""
         userRole = ""

@@ -18,6 +18,7 @@ from app.routers.chat import FIELD_LABELS
 from app.schemas import (
     ApiResponse,
     DraftDetailResponse,
+    ReviewDetailResponse,
     SessionCreateRequest,
     SessionResponse,
     SessionStatusUpdateRequest,
@@ -107,6 +108,27 @@ def get_draft_detail(
         missing_fields=json.loads(draft.missing_fields_json or "[]"),
         chat_history=json.loads(draft.chat_history_json or "[]"),
         completeness=draft.completeness_score or 0.0,
+    ))
+
+
+@router.get("/{session_id}/review", response_model=ApiResponse[ReviewDetailResponse])
+def get_review_detail(
+    session_id: str,
+    db: ORMSession = Depends(get_db),
+) -> ApiResponse[ReviewDetailResponse]:
+    """获取某次审查会话的结果详情（摘要 + 风险卡片）"""
+    session_obj = session_service.get_session(db, session_id)
+    if session_obj is None:
+        raise HTTPException(status_code=404, detail="会话不存在")
+    if session_obj.type != "review":
+        raise HTTPException(status_code=400, detail="该会话不是审查会话")
+    review = session_service.get_review_by_session(db, session_id)
+    if review is None:
+        raise HTTPException(status_code=404, detail="审查记录不存在")
+    return ApiResponse(data=ReviewDetailResponse(
+        status="completed",
+        summary=json.loads(review.summary_json) if review.summary_json else None,
+        risks=json.loads(review.risk_items_json) if review.risk_items_json else [],
     ))
 
 

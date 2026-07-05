@@ -1,0 +1,31 @@
+# 环境变量（含 API Key，永远不要提交）
+api/.env
+.env
+.env.local
+
+# 数据库文件
+api/data/
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# 上传文件
+api/uploads/
+uploads/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Xcode 工程
+ios/DerivedData/
+*.xcodeproj
+*.xcworkspace
+ios/UserInterfaceState.xcuserstate
+
+# 其他
+.DS_Store

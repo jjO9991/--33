@@ -53,6 +53,12 @@ def get_draft_by_session(db: ORMSession, session_id: str):
     return db.query(LeaseDraft).filter(LeaseDraft.session_id == session_id).first()
 
 
+def get_review_by_session(db: ORMSession, session_id: str):
+    """按会话 ID 获取 lease_review 审查记录"""
+    from app.models import LeaseReview
+    return db.query(LeaseReview).filter(LeaseReview.session_id == session_id).first()
+
+
 def update_session_title(db: ORMSession, session_obj: Session, title: str):
     """更新会话标题。"""
     session_obj.title = title[:64]

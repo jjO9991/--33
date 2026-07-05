@@ -187,6 +187,12 @@ struct ReviewAnalyzeRequest: Codable {
     }
 }
 
+struct ReviewDetailResponse: Codable {
+    let status: String
+    let summary: ReviewSummary?
+    let risks: [RiskCard]
+}
+
 struct ReviewAnalyzeResponse: Codable {
     let sessionId: String
     let status: String

@@ -4,20 +4,25 @@ import PhotosUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+    @State private var selectedTab = 0
+
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             HomeView()
                 .tabItem {
                     Label("首页", systemImage: "house.fill")
                 }
-            HistoryView()
+                .tag(0)
+            HistoryView(selectedTab: $selectedTab)
                 .tabItem {
                     Label("历史", systemImage: "clock.fill")
                 }
+                .tag(1)
             SettingsView()
                 .tabItem {
                     Label("我的", systemImage: "person")
                 }
+                .tag(2)
         }
         .accentColor(.mint)
     }
@@ -347,6 +352,7 @@ struct ReviewCardArtwork: View {
 }
 
 struct HistoryView: View {
+    @Binding var selectedTab: Int
     @State private var sessions: [Session] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
@@ -355,32 +361,52 @@ struct HistoryView: View {
 
     private let deviceId: String = UIDevice.current.identifierForVendor?.uuidString ?? "simulator"
     private let api = APIClient.shared
+    private let historyBackground = Color(red: 0.965, green: 0.976, blue: 0.984)
+
+    private var draftSessions: [Session] { sessions.filter { $0.type == "draft" } }
+    private var reviewSessions: [Session] { sessions.filter { $0.type == "review" } }
 
     var body: some View {
         NavigationView {
-            Group {
-                if isLoading {
-                    ProgressView("加载中…")
-                } else if sessions.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "clock.badge.questionmark")
-                            .font(.system(size: 48))
-                            .foregroundColor(.secondary)
-                        Text("暂无历史记录")
-                            .foregroundColor(.secondary)
-                        Text("开始拟定合同后，记录会出现在这里")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                } else {
-                    List {
-                        ForEach(sessions) { session in
-                            NavigationLink(destination: DraftFlowView(restoreSessionId: session.id)) {
-                                HistoryRow(session: session)
-                            }
+            ZStack {
+                historyBackground.ignoresSafeArea()
+
+                Group {
+                    if isLoading {
+                        ProgressView("加载中…")
+                    } else if sessions.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "clock.badge.questionmark")
+                                .font(.system(size: 48))
+                                .foregroundColor(.secondary)
+                            Text("暂无历史记录，完成合同操作后记录会出现在这里")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
                         }
-                        .onDelete { indexSet in
-                            Task { await deleteSessions(at: indexSet) }
+                    } else {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 14) {
+                                if !draftSessions.isEmpty {
+                                    sectionHeader("合同生成")
+                                    ForEach(draftSessions) { session in
+                                        HistoryCard(session: session, isEditing: isEditing) {
+                                            deleteSessionById(session.id)
+                                        }
+                                    }
+                                }
+                                if !reviewSessions.isEmpty {
+                                    sectionHeader("合同审查")
+                                    ForEach(reviewSessions) { session in
+                                        HistoryCard(session: session, isEditing: isEditing) {
+                                            deleteSessionById(session.id)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
                         }
                     }
                 }
@@ -388,8 +414,13 @@ struct HistoryView: View {
             .navigationTitle("历史记录")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    QiHeLogoMark()
-                        .frame(width: 22, height: 22)
+                    Button {
+                        selectedTab = 0
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(DraftStyle.primary)
+                    }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if !sessions.isEmpty {
@@ -399,7 +430,6 @@ struct HistoryView: View {
                     }
                 }
             }
-            .environment(\.editMode, .constant(isEditing ? .active : .inactive))
             .refreshable { await loadSessions() }
             .task { await loadSessions() }
             .alert("删除记录", isPresented: .init(
@@ -422,11 +452,24 @@ struct HistoryView: View {
         isLoading = true
         errorMessage = nil
         do {
-            sessions = try await api.getSessions(deviceId: deviceId, type: "draft")
+            // 不传 type → 后端返回 draft + review 全部会话
+            sessions = try await api.getSessions(deviceId: deviceId)
         } catch {
             errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+
+    private func deleteSessionById(_ id: String) {
+        guard let session = sessions.first(where: { $0.id == id }) else { return }
+        Task { await deleteSession(session) }
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundColor(DraftStyle.primary.opacity(0.7))
+            .padding(.leading, 4)
     }
 
     private func deleteSessions(at offsets: IndexSet) async {
@@ -460,16 +503,56 @@ struct HistoryView: View {
     }
 }
 
-// MARK: - 历史记录行
+// MARK: - 历史卡片
+
+struct HistoryCard: View {
+    let session: Session
+    let isEditing: Bool
+    let onDelete: () -> Void
+
+    private var isReview: Bool { session.type == "review" }
+    private var typeLabel: String { isReview ? "合同审查" : "合同生成" }
+
+    var body: some View {
+        Group {
+            if isReview {
+                ReviewHistoryRow(session: session, typeLabel: typeLabel)
+            } else {
+                NavigationLink(destination: DraftFlowView(restoreSessionId: session.id)) {
+                    HistoryRow(session: session, typeLabel: typeLabel)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(.white)
+                .shadow(color: .black.opacity(0.05), radius: 6, y: 2)
+        )
+        .overlay(alignment: .topTrailing) {
+            if isEditing {
+                Button(role: .destructive) {
+                    onDelete()
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .foregroundColor(.red)
+                        .background(Circle().fill(.white))
+                }
+                .offset(x: 6, y: -6)
+            }
+        }
+    }
+}
 
 struct HistoryRow: View {
     let session: Session
+    let typeLabel: String
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "doc.text.fill")
-                .font(.title3)
-                .foregroundColor(.purple)
+            Image(systemName: session.type == "review" ? "magnifyingglass.circle.fill" : "doc.text.fill")
+                .font(.title2)
+                .foregroundColor(DraftStyle.primary.opacity(0.7))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(session.title)
@@ -477,18 +560,29 @@ struct HistoryRow: View {
                     .fontWeight(.medium)
                     .lineLimit(1)
 
-                Text(formatDate(session.createdAt))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 6) {
+                    Text(formatDate(session.createdAt))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(typeLabel)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color(.systemGray6))
+                        .clipShape(Capsule())
+                }
             }
 
             Spacer()
 
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            if session.type != "review" {
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
-        .padding(.vertical, 4)
+        .padding()
     }
 
     private func formatDate(_ iso: String) -> String {
@@ -501,14 +595,17 @@ struct HistoryRow: View {
         }
         return iso
     }
+}
 
-    private func statusColor(_ status: String) -> Color {
-        switch status {
-        case "created", "processing": return .orange
-        case "completed": return .green
-        case "failed": return .red
-        default: return .secondary
+struct ReviewHistoryRow: View {
+    let session: Session
+    let typeLabel: String
+
+    var body: some View {
+        NavigationLink(destination: ReviewFlowView(restoreSessionId: session.id)) {
+            HistoryRow(session: session, typeLabel: typeLabel)
         }
+        .buttonStyle(.plain)
     }
 }
 
@@ -535,7 +632,15 @@ struct SettingsView: View {
 }
 
 struct ReviewFlowView: View {
-    @StateObject private var vm = ReviewFlowViewModel()
+    @StateObject private var vm: ReviewFlowViewModel
+
+    init(restoreSessionId: String? = nil) {
+        if let sid = restoreSessionId {
+            _vm = StateObject(wrappedValue: ReviewFlowViewModel(restoreSessionId: sid))
+        } else {
+            _vm = StateObject(wrappedValue: ReviewFlowViewModel())
+        }
+    }
 
     var body: some View {
         ZStack {

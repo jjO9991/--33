@@ -44,7 +44,6 @@ struct DraftFlowView: View {
             DraftBackground()
 
             VStack(spacing: 0) {
-                draftHeader
                 collapsibleBubble
 
                 ScrollViewReader { proxy in
@@ -74,6 +73,15 @@ struct DraftFlowView: View {
         .navigationBarTitleDisplayMode(.inline)
         .tint(DraftStyle.primary)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 8) {
+                    QiHeLogoMark()
+                        .frame(width: 22, height: 22)
+                    Text("合同生成")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(DraftStyle.primary)
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     showNewSessionAlert = true
@@ -97,20 +105,6 @@ struct DraftFlowView: View {
         } message: {
             Text(vm.errorMessage)
         }
-    }
-
-    private var draftHeader: some View {
-        HStack(spacing: 10) {
-            QiHeLogoMark()
-                .frame(width: 28, height: 28)
-            Text("合同生成")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(DraftStyle.primary)
-            Spacer()
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 18)
-        .padding(.bottom, 12)
     }
 
     // MARK: - 可收起气泡

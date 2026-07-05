@@ -91,6 +91,17 @@ actor APIClient {
         return data
     }
 
+    func getReviewDetail(sessionId: String) async throws -> ReviewDetailResponse {
+        let resp: ApiResponse<ReviewDetailResponse> = try await get(
+            "/api/v1/sessions/\(sessionId)/review",
+            type: ApiResponse<ReviewDetailResponse>.self
+        )
+        guard let data = resp.data else {
+            throw APIError.requestFailed(resp.message)
+        }
+        return data
+    }
+
     // MARK: - 通用请求
 
     private func get<T: Decodable>(_ path: String, type: T.Type) async throws -> T {

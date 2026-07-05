@@ -44,6 +44,14 @@ class DraftDetailResponse(BaseModel):
     completeness: float
 
 
+class ReviewDetailResponse(BaseModel):
+    """GET /api/v1/sessions/{session_id}/review 回参"""
+
+    status: str
+    summary: dict | None
+    risks: list[dict]
+
+
 class SessionStatusUpdateRequest(BaseModel):
     """PATCH /api/v1/sessions/{id} 请求体。"""
 

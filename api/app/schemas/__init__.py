@@ -3,6 +3,7 @@
 from app.schemas.common import ApiResponse, ErrorResponse, PaginatedResponse
 from app.schemas.session import (
     DraftDetailResponse,
+    ReviewDetailResponse,
     SessionCreateRequest,
     SessionResponse,
     SessionStatusUpdateRequest,
