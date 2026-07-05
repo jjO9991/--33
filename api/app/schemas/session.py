@@ -9,7 +9,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-SessionType = Literal["draft", "review"]
+SessionType = Literal["draft", "review", "chat"]
 SessionStatus = Literal["processing", "completed", "failed"]
 
 

@@ -17,7 +17,7 @@ from app.database import get_db
 from app.models import Session, LeaseDraft
 from app.schemas import ApiResponse
 from app.schemas.chat import ChatRequest, ChatResponse, FieldInfo
-from app.services.ai_service import chat_with_ai
+from app.services.ai_service import chat_home, chat_with_ai
 
 logger = logging.getLogger("qh.chat")
 
@@ -71,6 +71,10 @@ def chat(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="会话不存在",
         )
+
+    # 首页聊天：session type=chat → 纯聊天，不收集字段
+    if session_obj.type == "chat":
+        return _chat_home(session_id, session_obj, payload.message, db)
 
     # 2. 查找或创建 LeaseDraft
     draft = db.query(LeaseDraft).filter(LeaseDraft.session_id == session_id).first()
@@ -422,3 +426,49 @@ def _regex_extract(
                 fields["lease_end"] = dates[1].strip()
 
     return fields
+
+
+def _chat_home(session_id: str, session_obj, message: str, db):
+    """首页纯聊天，存历史但不做字段收集"""
+    from app.models import LeaseDraft
+
+    # 用 LeaseDraft 存聊天历史（复用 chat_history_json，字段相关不管）
+    draft = db.query(LeaseDraft).filter(LeaseDraft.session_id == session_id).first()
+    if draft is None:
+        draft = LeaseDraft(
+            session_id=session_id,
+            fields_json="{}",
+            missing_fields_json="[]",
+            chat_history_json="[]",
+            completeness_score=1.0,
+        )
+        db.add(draft)
+        db.commit()
+        db.refresh(draft)
+
+    chat_history = json.loads(draft.chat_history_json or "[]")
+
+    try:
+        reply, updated_history = chat_home(chat_history, message)
+    except Exception as e:
+        logger.error(f"首页 AI 调用失败: {e}")
+        return ApiResponse(
+            code=500,
+            message="AI 服务暂时不可用",
+            data=ChatResponse(
+                reply="抱歉，AI 服务暂时不可用，请稍后再试。",
+                fields=[],
+                completeness=1.0,
+            ),
+        )
+
+    draft.chat_history_json = json.dumps(updated_history)
+    if session_obj.title == "新建会话":
+        session_obj.title = message[:20]
+    db.commit()
+
+    return ApiResponse(data=ChatResponse(
+        reply=reply,
+        fields=[],
+        completeness=1.0,
+    ))

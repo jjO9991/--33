@@ -70,52 +70,8 @@ struct HomeView: View {
                     }
                     .padding(.top, 28)
 
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "message")
-                                .font(.title3)
-                                .foregroundColor(.mint)
-                            Text("请输入您的问题或合同需求...")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            NavigationLink(destination: DraftFlowView()) {
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 24, weight: .semibold))
-                                    .foregroundColor(Color(red: 0.15, green: 0.64, blue: 0.78))
-                                    .frame(width: 44, height: 44)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        Button(action: {}) {
-                            Label("上传合同文件", systemImage: "square.and.arrow.up")
-                                .font(.subheadline.weight(.semibold))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
-                                .background(Color(red: 0.95, green: 0.96, blue: 0.98))
-                                .clipShape(Capsule())
-                        }
-                        .buttonStyle(.plain)
-
-                        Divider()
-
-                        HStack {
-                            Text("试试问:")
-                                .font(.footnote.weight(.semibold))
-                            Spacer()
-                        }
-
-                        HStack(spacing: 8) {
-                            HomePromptChip(text: "生成租赁合同模板")
-                            HomePromptChip(text: "房东签约避坑指南")
-                        }
-                    }
-                    .padding(22)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                    .shadow(color: .black.opacity(0.08), radius: 18, x: 0, y: 10)
+                    HomeChatCard()
+                        .padding(.horizontal, 20)
 
                     HStack(spacing: 12) {
                         HomeActionCard(
@@ -229,21 +185,6 @@ private struct QiHeMark: Shape {
     }
 }
 
-struct HomePromptChip: View {
-    let text: String
-
-    var body: some View {
-        Text(text)
-            .font(.caption.weight(.medium))
-            .foregroundColor(Color(red: 0.08, green: 0.16, blue: 0.30))
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(Color(red: 0.96, green: 0.97, blue: 0.99))
-            .clipShape(Capsule())
-    }
-}
 
 struct HomeActionCard<Destination: View>: View {
     enum CardKind {
@@ -994,6 +935,80 @@ struct RiskCardView: View {
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.04), radius: 8, y: 4)
+    }
+}
+
+// MARK: - 首页聊天卡片
+
+struct HomeInputBar: View {
+    @State private var inputText: String = ""
+    @State private var navigateToChat = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                TextField("描述你的合同需求或法律问题…", text: $inputText)
+                    .font(.system(size: 14))
+                    .submitLabel(.send)
+                    .onSubmit { if !inputText.trimmingCharacters(in: .whitespaces).isEmpty { navigateToChat = true } }
+
+                Button {
+                    if !inputText.trimmingCharacters(in: .whitespaces).isEmpty {
+                        navigateToChat = true
+                    }
+                } label: {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 26, height: 26)
+                        .background(
+                            inputText.trimmingCharacters(in: .whitespaces).isEmpty
+                                ? Color.gray.opacity(0.35)
+                                : Color(red: 0.09, green: 0.23, blue: 0.37)
+                        )
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(.white)
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
+
+            // Prompt 快捷入口
+            HStack(spacing: 8) {
+                Text("试试问").font(.caption).foregroundColor(.secondary)
+                HomePromptChip(text: "租房押金怎么退？") { inputText = "租房押金怎么退？" }
+                HomePromptChip(text: "违约金一般多少？") { inputText = "违约金一般多少？" }
+                Spacer()
+            }
+            .padding(.top, 10)
+            .padding(.leading, 4)
+
+            // 隐藏的 NavigationLink
+            NavigationLink(
+                destination: HomeChatView(initialMessage: inputText.trimmingCharacters(in: .whitespaces)),
+                isActive: $navigateToChat
+            ) { EmptyView() }
+        }
+    }
+}
+
+struct HomePromptChip: View {
+    let text: String
+    var action: (() -> Void)?
+
+    var body: some View {
+        Button(action: { action?() }) {
+            Text(text)
+                .font(.caption2.weight(.medium))
+                .foregroundColor(Color(red: 0.09, green: 0.23, blue: 0.37))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color(red: 0.09, green: 0.23, blue: 0.37).opacity(0.06))
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -80,6 +80,17 @@ actor APIClient {
         return data
     }
 
+    func getChatDetail(sessionId: String) async throws -> DraftDetailResponse {
+        let resp: ApiResponse<DraftDetailResponse> = try await get(
+            "/api/v1/sessions/\(sessionId)/chat",
+            type: ApiResponse<DraftDetailResponse>.self
+        )
+        guard let data = resp.data else {
+            throw APIError.requestFailed(resp.message)
+        }
+        return data
+    }
+
     // MARK: - 合同审查
 
     func analyzeReview(sessionId: String, text: String, userRole: String) async throws -> ReviewAnalyzeResponse {

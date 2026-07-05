@@ -132,6 +132,26 @@ def get_review_detail(
     ))
 
 
+@router.get("/{session_id}/chat", response_model=ApiResponse[DraftDetailResponse])
+def get_chat_detail(
+    session_id: str,
+    db: ORMSession = Depends(get_db),
+) -> ApiResponse[DraftDetailResponse]:
+    """获取首页聊天会话的聊天记录"""
+    session_obj = session_service.get_session(db, session_id)
+    if session_obj is None:
+        raise HTTPException(status_code=404, detail="会话不存在")
+    draft = session_service.get_draft_by_session(db, session_id)
+    if draft is None:
+        raise HTTPException(status_code=404, detail="聊天记录不存在")
+    return ApiResponse(data=DraftDetailResponse(
+        fields={},
+        missing_fields=[],
+        chat_history=json.loads(draft.chat_history_json or "[]"),
+        completeness=1.0,
+    ))
+
+
 @router.patch("/{session_id}/status", response_model=ApiResponse[SessionResponse])
 def update_session_status(
     session_id: str,

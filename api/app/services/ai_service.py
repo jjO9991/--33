@@ -16,6 +16,15 @@ from app.config import get_settings
 
 logger = logging.getLogger("qh.ai")
 
+HOME_CHAT_SYSTEM_PROMPT = """你是「契合」，一个专业的房屋租赁合同 AI 助手。
+
+你的角色：
+- 友好、专业地回答用户关于租房、合同、法律常识的问题
+- 当用户表达"想租房""需要合同""签约""审核"等意图时，温和引导：「你可以点击下方的「合同生成」快速拟定一份租房合同，或者点击「合同审查」帮你检查已有合同的风险」
+- 不要主动帮用户收集合同字段（那是「合同生成」功能的工作）
+- 回答简洁，控制在 200 字以内，像真人聊天一样自然
+- 始终使用中文回复"""
+
 SYSTEM_PROMPT = """你是「契合」，一个专业的房屋租赁合同 AI 助手。
 
 你的核心能力：
@@ -201,24 +210,30 @@ def review_contract(contract_text: str, user_role: str) -> dict:
         raise ValueError(f"模型返回非法 JSON: {e}") from e
 
 
-def chat_with_ai(
+def _chat_common(
     messages: list[dict],
     user_message: str,
+    *,
+    system_prompt: str,
+    temperature: float = 0.7,
+    max_tokens: int = 1024,
 ) -> tuple[str, list[dict]]:
     """
-    调用 DeepSeek 获取 AI 回复。
+    DeepSeek 调用核心逻辑，首页聊天和合同生成共用。
 
     Args:
         messages: 历史消息 [{role, content}, ...]
         user_message: 用户最新输入
+        system_prompt: 本次调用使用的 system prompt
+        temperature: 温度
+        max_tokens: 最大输出 token
 
     Returns:
         (ai_reply, updated_messages)
     """
     client = _build_openai_client()
 
-    # 构造请求消息
-    request_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    request_messages = [{"role": "system", "content": system_prompt}]
     request_messages.extend(messages)
     request_messages.append({"role": "user", "content": user_message})
 
@@ -226,8 +241,8 @@ def chat_with_ai(
         resp = client.chat.completions.create(
             model=get_settings().deepseek_model,
             messages=request_messages,
-            temperature=0.7,
-            max_tokens=1024,
+            temperature=temperature,
+            max_tokens=max_tokens,
         )
 
         reply = resp.choices[0].message.content or "抱歉，我没有理解你的意思，能再说一遍吗？"
@@ -242,3 +257,37 @@ def chat_with_ai(
     except Exception as e:
         logger.error(f"DeepSeek 调用失败: {e}")
         raise
+
+
+def chat_with_ai(
+    messages: list[dict],
+    user_message: str,
+) -> tuple[str, list[dict]]:
+    """
+    合同生成 / 拟定合同流的 DeepSeek 调用（带字段收集 prompt）。
+
+    Args:
+        messages: 历史消息 [{role, content}, ...]
+        user_message: 用户最新输入
+
+    Returns:
+        (ai_reply, updated_messages)
+    """
+    return _chat_common(messages, user_message, system_prompt=SYSTEM_PROMPT)
+
+
+def chat_home(
+    messages: list[dict],
+    user_message: str,
+) -> tuple[str, list[dict]]:
+    """
+    首页聊天的 DeepSeek 调用（不带字段收集 prompt）。
+
+    Args:
+        messages: 历史消息 [{role, content}, ...]
+        user_message: 用户最新输入
+
+    Returns:
+        (ai_reply, updated_messages)
+    """
+    return _chat_common(messages, user_message, system_prompt=HOME_CHAT_SYSTEM_PROMPT)
