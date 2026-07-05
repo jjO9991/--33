@@ -78,12 +78,9 @@ struct DraftFlowView: View {
                 Button {
                     showNewSessionAlert = true
                 } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .semibold))
+                    Label("新对话", systemImage: "plus")
+                        .font(.system(size: 15, weight: .medium))
                         .foregroundColor(DraftStyle.primary)
-                        .frame(width: 28, height: 28)
-                        .background(DraftStyle.primary.opacity(0.08))
-                        .clipShape(Circle())
                 }
             }
         }
